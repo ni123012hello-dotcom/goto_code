@@ -1,0 +1,32 @@
+# dependencies
+node_modules/
+
+# build output. The server hosts web/dist, and it is produced by `pnpm build`
+dist/
+
+# Runtime state: sessions, memory, notes, personal skills — and settings.json /
+# providers.json / mcp.json, which hold API keys in PLAINTEXT. Nothing in here may
+# ever be committed.
+.data/
+
+# secrets
+.env
+.env.local
+
+# logs
+*.log
+
+# editor / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# screenshots taken while working on the look
+web/.ui-preview/
+web/.ui-backup-*/
+
+# This tool's own project metadata (learned preferences and the like). Local to a
+# machine, never part of the code.
+.commandcode/

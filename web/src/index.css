@@ -1,0 +1,1144 @@
+@import "tailwindcss";
+
+/* ============================================================================
+ * goto — visual language v4 SLATE, two palettes
+ *
+ * SLATE is the language; the palette is a separate decision. Everything below
+ * the palette is shared: the same M3 tonal roles, the same flat surfaces, the
+ * same residual industrial edge.
+ *
+ *   LINEN    米白 — the default. Warm off-white, as if the panel were paper.
+ *   GRAPHITE 石墨 — the dark palette.
+ *
+ * THREE IDEAS, IN THIS ORDER
+ *
+ *   1. MATERIAL TONAL SURFACES (M3). Depth is carried by *tone*, not by hue.
+ *      Each surface is one step of the same warm-neutral ramp, so a card on a
+ *      panel on a floor reads as three floors even with all colour removed.
+ *
+ *   2. FLAT, NOT LIT. There is no light source and no bevel: raised and sunken
+ *      are told apart by tone alone (idea 1). `--el-*`, `--in-*`, `--bevel` and
+ *      `--shadow-float` still exist as the depth scale, but every step is a
+ *      transparent no-op, so the app is genuinely two-dimensional. The focus
+ *      ring is the one shadow-shaped thing that survives, because it carries
+ *      information rather than decoration.
+ *
+ *      Direction of travel is the same in both palettes: raised goes toward
+ *      white, the well sinks below the floor. What flips between palettes is
+ *      only which end of the ramp "white" sits at.
+ *
+ *   3. A RESIDUAL INDUSTRIAL EDGE. Three things only, and no more: a hairline
+ *      that always sits where two surfaces meet, a monospace micro-tag for
+ *      every field name, and a status LED that is a real dot of colour. With
+ *      the bevels gone these hairlines carry the whole structure — they are why
+ *      a flat surface still reads as an object.
+ *
+ * SHAPE — true right angles, everywhere, no exceptions. Nothing in the app is
+ *   rounded: indicator bars, tags, seams, the LED, buttons, inputs, cards, chips,
+ *   nav items, dialogs and floating windows all meet at 0. The `--radius-*` scale
+ *   below is kept as the single knob (every step is 0) rather than deleted, so the
+ *   decision lives in one place if any of it is ever walked back.
+ *
+ * BANNED, ON PURPOSE: blue and purple of any kind, frosted/liquid glass, blur,
+ * translucency over live content, and rounded corners.
+ *
+ * HOW THE THEME SWITCH WORKS
+ *   `@theme` declares the LINEN values, so the default needs no JavaScript and
+ *   the utilities Tailwind emits (`bg-s-card`, `text-s-rust`, …) resolve through
+ *   `var(--color-s-*)`. `:root[data-theme="dark"]` then re-declares every token.
+ *   That block is *unlayered*, so it beats Tailwind's `@layer theme` output
+ *   regardless of specificity, and because every token is referenced from it,
+ *   Tailwind cannot tree-shake one away. (It does drop tokens nothing refers
+ *   to — verified by grepping the built CSS.)
+ *
+ *   Rule for new code: never hardcode a colour outside these two blocks. If a
+ *   value has to differ per palette, it goes in both.
+ * ==========================================================================*/
+
+@theme {
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI Variable Text", "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, "Microsoft YaHei UI", "PingFang SC", "Noto Sans CJK SC", sans-serif;
+  --font-mono: "JetBrains Mono", "Cascadia Mono", ui-monospace, Consolas, "Courier New", monospace;
+
+  /* --- LINEN: the tonal ramp -----------------------------------------------
+   * Warm neutral — R > G > B by a hair, which is what reads as "paper" rather
+   * than "grey". Cards rise toward white; the well sinks below the floor. */
+  --color-s-well: #e4ddcd; /* sunken: inputs, code, readouts */
+  --color-s-floor: #efebe0; /* the page itself */
+  --color-s-rail: #f6f3ea; /* navigation rail, top bar */
+  --color-s-panel: #f9f6ef; /* panels, dialog bodies, status bars */
+  --color-s-card: #fbf9f3; /* cards and tiles at rest */
+  --color-s-raise: #ffffff; /* hover, active chips, dragged things */
+  --color-s-top: #ffffff; /* raised on top of something already raised */
+  --color-s-peak: #ffffff; /* the segmented control's thumb */
+  --color-s-lift: #ffffff; /* hover fill, aliases s-raise for utilities */
+
+  --color-s-line: #ddd6c5; /* the hairline two surfaces share */
+  --color-s-edge: #c4bba6; /* a hairline that must be seen */
+
+  /* --- on-surface text, M3 roles ------------------------------------------- */
+  --color-s-faint: #7c7360; /* outline: disabled, placeholders, meta */
+  --color-s-soft: #5c5544; /* on-surface-variant: secondary */
+  --color-s-body: #332e25; /* on-surface: body copy */
+  --color-s-bright: #15120c; /* on-surface emphasis: titles, values */
+
+  /* --- two accents and two states -----------------------------------------
+   * `ink` is the M3 primary. In a light palette that means a *dark* fill
+   * carrying light text — the mirror image of GRAPHITE, where it is bone on
+   * charcoal. It is how a primary action stays unmistakable with no hue at all.
+   * `ember` is the one warm note left: brass, deepened until it clears 4.5:1
+   * against the card, because it is used for text (links, active labels, tags).
+   * The `-hi` / `-lo` pairs exist so hover and press never hardcode a colour. */
+  --color-s-ink: #26221b;
+  --color-s-ink-hi: #3a342a; /* hover of a primary fill */
+  --color-s-ink-lo: #100e09; /* press of a primary fill */
+  --color-s-on-ink: #f6f3ea;
+  --color-s-ember: #8a6210;
+  --color-s-on-ember: #fbf6ea;
+  --color-s-warn: #a34a0c;
+  --color-s-moss: #2e6a3c;
+  --color-s-on-moss: #f3fbf5;
+  --color-s-rust: #a32b20;
+  --color-s-rust-hi: #b93a2d; /* hover of a danger fill */
+  --color-s-on-rust: #fdf4f2;
+
+  /* --- shape -------------------------------------------------------------- */
+  /* every step is 0: the scale survives as one knob, the app has no rounded corners */
+  --radius-xs: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+
+  --ease-std: cubic-bezier(0.2, 0, 0, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 110ms;
+  --dur-std: 170ms;
+  --dur-slow: 300ms;
+
+  /* flat, like the rest of the depth scale (see the elevation block below) */
+  --shadow-float: 0 0 0 0 transparent;
+}
+
+/* ---------------------------------------------------------------------------
+ * LINEN — elevation and the values that are not colours
+ * -------------------------------------------------------------------------*/
+:root {
+  /* Native controls — the <select> popup, checkboxes, scrollbars, the caret —
+     follow this, not our tokens. Without it a dark session gets a white
+     dropdown hanging off a dark app bar. */
+  color-scheme: light;
+
+  /* FLAT. The neumorphic lighting is off: every depth token is a no-op instead of the
+     declarations being deleted, because `box-shadow: var(--el-1), var(--bevel)` is a
+     comma list and a bare `none` inside one invalidates the whole declaration. The scale
+     survives as the single knob if any depth is ever wanted back. `0 0 0 0 transparent`
+     renders nothing. */
+  --el-1: 0 0 0 0 transparent;
+  --el-2: 0 0 0 0 transparent;
+  --el-3: 0 0 0 0 transparent;
+  --el-4: 0 0 0 0 transparent;
+
+  --in-1: inset 0 0 0 0 transparent;
+  --in-2: inset 0 0 0 0 transparent;
+
+  --bevel: 0 0 0 0 transparent;
+
+  /* A modal has to read as a different floor. In LINEN the panel and the floor
+     are only a few tones apart, so the veil carries more of the separation than
+     it does in GRAPHITE — otherwise the dialog looks pasted on, not lifted. */
+  --scrim: rgba(58, 48, 32, 0.46);
+  /* flat: no overhead wash, no glow, and the slab is just the card surface instead of a
+     lit radial gradient with a rim and an inset */
+  --page-glow: none;
+  --glow-ink: transparent;
+  --scroll-thumb: #cfc6b1;
+
+  --slab-grad: var(--color-s-card);
+  --slab-in: inset 0 0 0 0 transparent;
+  --slab-rim: transparent;
+}
+
+/* ---------------------------------------------------------------------------
+ * GRAPHITE — every token again, nothing inherited
+ * -------------------------------------------------------------------------*/
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* A dark GREY, not black. The old ramp bottomed out at #090909, so the page read as a
+     black sheet with black panels on it — with the bevels gone, tone is the only thing
+     separating surfaces, and near-black gave it nothing to work with. Every step moves up
+     together so the relationships hold: the well still sinks below the floor, cards still
+     rise above the panel. The muted text moves with the surfaces for the same reason —
+     #616161 on a #333333 panel is unreadable. */
+  --color-s-well: #1e1e1e;
+  --color-s-floor: #282828;
+  --color-s-rail: #2d2d2d;
+  --color-s-panel: #333333;
+  --color-s-card: #3a3a3a;
+  --color-s-raise: #424242;
+  --color-s-top: #4a4a4a;
+  --color-s-peak: #525252;
+  --color-s-lift: #424242;
+
+  --color-s-line: #4a4a4a;
+  --color-s-edge: #616161;
+
+  --color-s-faint: #a8a8a8;
+  --color-s-soft: #b6b6b6;
+  --color-s-body: #d2d2d2;
+  --color-s-bright: #f5f5f5;
+
+  --color-s-ink: #e6e4dd;
+  --color-s-ink-hi: #f4f3ee;
+  --color-s-ink-lo: #d6d4cc;
+  --color-s-on-ink: #16150f;
+  --color-s-ember: #d0a05e;
+  --color-s-on-ember: #171009;
+  --color-s-warn: #c8834a;
+  --color-s-moss: #7ab189;
+  --color-s-on-moss: #0b140e;
+  --color-s-rust: #cf5c52;
+  --color-s-rust-hi: #da6d63;
+  --color-s-on-rust: #180a09;
+
+  /* flat, identical to LINEN — see the elevation block for why these are no-ops
+     rather than deleted */
+  --shadow-float: 0 0 0 0 transparent;
+
+  --el-1: 0 0 0 0 transparent;
+  --el-2: 0 0 0 0 transparent;
+  --el-3: 0 0 0 0 transparent;
+  --el-4: 0 0 0 0 transparent;
+
+  --in-1: inset 0 0 0 0 transparent;
+  --in-2: inset 0 0 0 0 transparent;
+
+  --bevel: 0 0 0 0 transparent;
+
+  --scrim: rgba(5, 5, 6, 0.76);
+  --page-glow: none;
+  --glow-ink: transparent;
+  --scroll-thumb: #565656;
+
+  --slab-grad: var(--color-s-card);
+  --slab-in: inset 0 0 0 0 transparent;
+  --slab-rim: transparent;
+}
+
+/* ---------------------------------------------------------------------------
+ * Layering contract, restated so the scale stays honest:
+ *   z-30   idle sub-agent prompt
+ *   z-40   floating windows (note, sub-agent)
+ *   z-50   blocking modals behind a scrim
+ *   z-60   prompts that must stay actionable over anything
+ * -------------------------------------------------------------------------*/
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-s-floor);
+  /* depth without a coloured glow: a single cold light overhead */
+  background-image: var(--page-glow);
+  background-repeat: no-repeat;
+  color: var(--color-s-body);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--color-s-ink);
+  color: var(--color-s-on-ink);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scroll-thumb) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 11px;
+  height: 11px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--scroll-thumb);
+  border: 3px solid transparent;
+  background-clip: content-box;
+  border-radius: 0;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--color-s-edge);
+  background-clip: content-box;
+}
+
+@layer base {
+  input,
+  select,
+  textarea {
+    border-radius: var(--radius-sm);
+  }
+
+  button {
+    border-radius: var(--radius-sm);
+  }
+
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+
+  pre,
+  code,
+  kbd,
+  samp {
+    font-family: var(--font-mono);
+  }
+
+  pre {
+    border-radius: var(--radius-sm);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-s-ember);
+    outline-offset: 1px;
+  }
+}
+
+/* ===========================================================================
+ * Surfaces — M3 tonal roles wearing a neumorphic bevel
+ *
+ * Everything below lives in @layer components on purpose. Tailwind v4 emits its
+ * utilities into a cascade layer, and *unlayered* CSS beats every layered rule —
+ * so leaving these outside a layer would make `text-s-rust` on a `.s-btn` a
+ * no-op. Layered, a utility always wins, and no call site needs `!important`.
+ * =========================================================================*/
+
+@layer components {
+
+/* The bar across the top: the highest non-modal floor in the app. */
+.s-bar {
+  background-color: var(--color-s-rail);
+  border-bottom: 1px solid var(--color-s-line);
+  box-shadow: var(--el-1), var(--bevel);
+}
+
+/* The navigation rail down the left: a slab, not a list. */
+.s-rail {
+  background-color: var(--color-s-rail);
+  border-right: 1px solid var(--color-s-line);
+  box-shadow: var(--el-1), var(--bevel);
+}
+
+/* Rails, sidebars, status bars, dialog bodies. */
+.s-panel {
+  background-color: var(--color-s-panel);
+  border: 1px solid var(--color-s-line);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--el-1), var(--bevel);
+}
+
+/* A card: anything that has to lift off the page it sits on. */
+.s-card {
+  background-color: var(--color-s-card);
+  border: 1px solid var(--color-s-line);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--el-2), var(--bevel);
+}
+
+/* A well: fields, code, readouts — the floor drops instead of rising. */
+.s-well {
+  background-color: var(--color-s-well);
+  border: 1px solid var(--color-s-line);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--in-1);
+}
+
+/* Hover / active: one tonal step up. */
+.s-lift {
+  background-color: var(--color-s-raise);
+}
+
+/* ===========================================================================
+ * Marks — the residual industrial edge
+ * =========================================================================*/
+
+/* A machine tag: monospace, upper case, tracked, tiny. Used for every field
+   name and every numeric readout. It is the one place a monospace face is
+   allowed outside code, and it is what makes a soft UI read as an instrument. */
+.s-tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1.5;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  border-radius: var(--radius-xs);
+}
+
+/* A real dot of colour. A status that is only worth a word still gets one.
+   `hollow` is the other half of the pair: a ring instead of a fill, because at
+   6px a dark hue difference is invisible on paper, while filled-vs-hollow reads
+   instantly. State is carried by shape wherever a fill is not enough. */
+.s-led {
+  display: inline-block;
+  box-sizing: border-box;
+  width: 6px;
+  height: 6px;
+  border-radius: 0;
+  flex-shrink: 0;
+}
+
+.s-led--hollow {
+  background-color: transparent;
+  border: 1px solid currentColor;
+}
+
+/* Alarm strips: a solid bar of colour on the edge of a surface. */
+.s-mark {
+  background-color: var(--color-s-rust);
+  border-radius: var(--radius-xs);
+}
+
+.s-mark--warn {
+  background-color: var(--color-s-warn);
+  border-radius: var(--radius-xs);
+}
+
+/* A hard hairline; the cheapest way to show hierarchy there is. */
+.s-hair {
+  height: 1px;
+  background-color: var(--color-s-line);
+}
+
+/* A corner tick: the motif that marks "this one is live". Two right angles,
+   drawn with borders, so it stays crisp at any zoom. */
+.s-corner {
+  position: relative;
+}
+
+.s-corner::before,
+.s-corner::after {
+  content: "";
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  pointer-events: none;
+}
+
+.s-corner::before {
+  top: -1px;
+  left: -1px;
+  border-top: 1px solid var(--color-s-ember);
+  border-left: 1px solid var(--color-s-ember);
+}
+
+.s-corner::after {
+  bottom: -1px;
+  right: -1px;
+  border-bottom: 1px solid var(--color-s-ember);
+  border-right: 1px solid var(--color-s-ember);
+}
+
+/* ===========================================================================
+ * Navigation rail items — M3 rail wearing the same bevel
+ * =========================================================================*/
+
+.s-nav {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  min-height: 32px;
+  padding: 0 9px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background-color: transparent;
+  color: var(--color-s-soft);
+  text-align: left;
+  transition:
+    background-color var(--dur-fast) var(--ease-std),
+    color var(--dur-fast) var(--ease-std),
+    border-color var(--dur-fast) var(--ease-std),
+    box-shadow var(--dur-fast) var(--ease-std);
+}
+
+.s-nav:hover:not(:disabled) {
+  background-color: var(--color-s-card);
+  color: var(--color-s-bright);
+  border-color: var(--color-s-line);
+  box-shadow: var(--el-1);
+}
+
+.s-nav[data-on="true"] {
+  background-color: var(--color-s-raise);
+  border-color: var(--color-s-line);
+  color: var(--color-s-bright);
+  box-shadow: var(--el-1), var(--bevel);
+}
+
+.s-nav[data-on="true"]:hover:not(:disabled) {
+  background-color: var(--color-s-top);
+}
+
+/* The lit edge: an active rail item grows a 2px ember spine on its left. */
+.s-nav[data-on="true"]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 2px;
+  background-color: var(--color-s-ember);
+}
+
+.s-nav:disabled {
+  opacity: 0.34;
+  cursor: default;
+}
+
+/* ===========================================================================
+ * Controls
+ * =========================================================================*/
+
+/* Buttons. Square-ish, softly lit, and they press *into* the surface — the one
+   piece of literal neumorphism worth keeping, because on a flat UI it is the
+   only thing that makes a click feel physical. */
+.s-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 28px;
+  padding: 0 11px;
+  white-space: nowrap;
+  border: 1px solid var(--color-s-line);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-s-card);
+  color: var(--color-s-soft);
+  box-shadow: var(--el-1);
+  transition:
+    background-color var(--dur-fast) var(--ease-std),
+    color var(--dur-fast) var(--ease-std),
+    box-shadow var(--dur-fast) var(--ease-std),
+    border-color var(--dur-fast) var(--ease-std);
+}
+
+.s-btn:hover:not(:disabled) {
+  background-color: var(--color-s-raise);
+  border-color: var(--color-s-edge);
+  color: var(--color-s-bright);
+}
+
+.s-btn:active:not(:disabled),
+.s-btn[data-on="true"] {
+  background-color: var(--color-s-well);
+  border-color: var(--color-s-line);
+  color: var(--color-s-bright);
+  box-shadow: var(--in-1);
+}
+
+.s-btn:disabled {
+  opacity: 0.34;
+  box-shadow: none;
+  cursor: default;
+}
+
+/* Primary: the M3 answer, mirrored per palette. A fill that sits at the opposite
+   end of the ramp from its surface, so the main action is unmistakable with no
+   hue involved at all. */
+.s-btn--primary {
+  border-color: var(--color-s-ink);
+  background-color: var(--color-s-ink);
+  color: var(--color-s-on-ink);
+  font-weight: 600;
+  box-shadow: var(--el-1), 0 0 14px -6px var(--glow-ink);
+}
+
+.s-btn--primary:hover:not(:disabled) {
+  background-color: var(--color-s-ink-hi);
+  border-color: var(--color-s-ink-hi);
+  color: var(--color-s-on-ink);
+}
+
+.s-btn--primary:active:not(:disabled) {
+  background-color: var(--color-s-ink-lo);
+  border-color: var(--color-s-ink-lo);
+  box-shadow: var(--in-1);
+}
+
+.s-btn--danger {
+  border-color: var(--color-s-rust);
+  background-color: var(--color-s-rust);
+  color: var(--color-s-on-rust);
+  font-weight: 600;
+}
+
+.s-btn--danger:hover:not(:disabled) {
+  background-color: var(--color-s-rust-hi);
+  border-color: var(--color-s-rust-hi);
+  color: var(--color-s-on-rust);
+}
+
+/* Armed: moss rim and a faint wash, so "on" reads as a lit edge rather than a
+   badge. The wash is mixed from the token, so it lands correctly on paper and
+   on charcoal without a second value per palette. */
+.s-btn--ok {
+  border-color: var(--color-s-moss);
+  background-color: color-mix(in oklab, var(--color-s-moss) 12%, transparent);
+  color: var(--color-s-moss);
+}
+
+.s-btn--ok:hover:not(:disabled) {
+  background-color: color-mix(in oklab, var(--color-s-moss) 20%, transparent);
+  color: var(--color-s-moss);
+}
+
+/* Caution: anything reversible-but-careful. */
+.s-btn--warn {
+  border-color: var(--color-s-warn);
+  background-color: color-mix(in oklab, var(--color-s-warn) 12%, transparent);
+  color: var(--color-s-warn);
+}
+
+.s-btn--warn:hover:not(:disabled) {
+  background-color: color-mix(in oklab, var(--color-s-warn) 20%, transparent);
+  color: var(--color-s-warn);
+}
+
+.s-btn--ghost {
+  border-color: transparent;
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.s-btn--ghost:hover:not(:disabled) {
+  background-color: var(--color-s-card);
+  border-color: var(--color-s-line);
+  box-shadow: var(--el-1);
+}
+
+.s-btn--sm {
+  min-height: 22px;
+  padding: 0 7px;
+}
+
+/* Segmented control: M3's switch, rebuilt as a sunken track with a raised
+   thumb. Reads as a physical two-position switch rather than two buttons. */
+.s-seg {
+  display: inline-flex;
+  align-items: stretch;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--color-s-line);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-s-well);
+  box-shadow: var(--in-1);
+}
+
+.s-seg > button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 22px;
+  padding: 0 10px;
+  white-space: nowrap;
+  border: 1px solid transparent;
+  border-radius: var(--radius-xs);
+  background-color: transparent;
+  color: var(--color-s-soft);
+  transition:
+    background-color var(--dur-fast) var(--ease-std),
+    color var(--dur-fast) var(--ease-std),
+    box-shadow var(--dur-fast) var(--ease-std),
+    border-color var(--dur-fast) var(--ease-std);
+}
+
+.s-seg > button:hover:not(:disabled) {
+  color: var(--color-s-bright);
+  background-color: var(--color-s-card);
+}
+
+.s-seg > button[data-on="true"] {
+  background-color: var(--color-s-peak);
+  border-color: var(--color-s-edge);
+  color: var(--color-s-bright);
+  box-shadow: var(--el-1), var(--bevel);
+}
+
+.s-seg > button[data-tone="warn"][data-on="true"] {
+  background-color: color-mix(in oklab, var(--color-s-warn) 16%, var(--color-s-peak));
+  border-color: var(--color-s-warn);
+  color: var(--color-s-warn);
+}
+
+.s-seg > button[data-tone="danger"][data-on="true"] {
+  background-color: color-mix(in oklab, var(--color-s-rust) 16%, var(--color-s-peak));
+  border-color: var(--color-s-rust);
+  color: var(--color-s-rust);
+}
+
+.s-seg > button[data-tone="ok"][data-on="true"] {
+  background-color: color-mix(in oklab, var(--color-s-moss) 14%, var(--color-s-peak));
+  border-color: var(--color-s-moss);
+  color: var(--color-s-moss);
+}
+
+.s-seg > button:disabled {
+  opacity: 0.34;
+  cursor: default;
+}
+
+/* Form fields live in wells. */
+.s-input {
+  background-color: var(--color-s-well);
+  border: 1px solid var(--color-s-line);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--in-1);
+  padding: 5px 8px;
+  color: var(--color-s-bright);
+  outline: none;
+  transition:
+    border-color var(--dur-fast) var(--ease-std),
+    box-shadow var(--dur-fast) var(--ease-std);
+}
+
+.s-input:hover:not(:disabled) {
+  border-color: var(--color-s-edge);
+}
+
+.s-input:focus {
+  border-color: var(--color-s-ember);
+  box-shadow: var(--in-1), 0 0 0 2px color-mix(in oklab, var(--color-s-ember) 18%, transparent);
+}
+
+.s-input::placeholder {
+  color: var(--color-s-faint);
+}
+
+.s-input:disabled {
+  opacity: 0.4;
+}
+
+.s-input--warn {
+  border-color: var(--color-s-warn);
+}
+
+.s-input--focus {
+  border-color: var(--color-s-ember);
+}
+
+/* Status chip — state carried by fill + hairline + label together. */
+.s-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 6px;
+  min-height: 18px;
+  border: 1px solid var(--color-s-line);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-s-card);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1.5;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+/* ===========================================================================
+ * Dialogs
+ * =========================================================================*/
+
+.s-dialog {
+  background-color: var(--color-s-panel);
+  border: 1px solid var(--color-s-line);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-float);
+}
+
+.s-dialog__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--color-s-line);
+  background-color: var(--color-s-card);
+  padding: 8px 12px;
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  box-shadow: var(--bevel);
+}
+
+.s-dialog__foot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  border-top: 1px solid var(--color-s-line);
+  background-color: var(--color-s-rail);
+  padding: 10px 12px;
+  border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+}
+
+.s-dialog--primary {
+  border-color: var(--color-s-ember);
+}
+
+.s-dialog--danger {
+  border-color: var(--color-s-rust);
+}
+
+/* Scrim: opaque enough to read as a floor change. No blur, ever. */
+.s-scrim {
+  background-color: var(--scrim);
+}
+
+/* ===========================================================================
+ * The status mark — a level meter, not a face.
+ *
+ * This replaced an anthropomorphic one: a slab with a brow, two eyes, a wince
+ * and a squint. The information it carried is unchanged ("is it working?", the
+ * most asked question in the app) but it is now carried by a plain instrument —
+ * three bars on a lit slab, which is machinery, not a personality.
+ *
+ *   idle      at rest, dim                working   stepping, ember
+ *   done      full height, moss           error     full height with a break
+ *
+ * The meter is also the more robust indicator: a brow is mud at 16px, three
+ * bars of different heights still read as "busy".
+ * =========================================================================*/
+.s-signal {
+  --tone: var(--color-s-faint);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  background: var(--slab-grad);
+  box-shadow:
+    inset 0 1px 1px var(--slab-rim),
+    var(--slab-in),
+    var(--el-2),
+    0 0 0 1px var(--color-s-line),
+    0 0 12px -4px var(--tone-glow);
+  transition: box-shadow var(--dur-std) var(--ease-std);
+}
+
+.s-signal__meter {
+  display: flex;
+  align-items: flex-end;
+  gap: 1px;
+  width: 48%;
+  height: 46%;
+}
+
+.s-signal__meter > i {
+  flex: 1;
+  height: 26%;
+  border-radius: 0;
+  background-color: var(--tone);
+  transition: height var(--dur-std) var(--ease-std);
+}
+
+/* working: the bars step in sequence, the way a level meter on a rack does.
+   Nothing about it suggests a mood — it is simply a machine doing work. */
+.s-signal[data-state="working"] {
+  --tone: var(--color-s-ember);
+  --tone-glow: transparent;
+}
+
+.s-signal[data-state="working"] .s-signal__meter > i {
+  animation: signal-step 1.15s var(--ease-std) infinite;
+}
+
+.s-signal[data-state="working"] .s-signal__meter > i:nth-child(2) {
+  animation-delay: 120ms;
+}
+
+.s-signal[data-state="working"] .s-signal__meter > i:nth-child(3) {
+  animation-delay: 240ms;
+}
+
+.s-signal[data-state="done"] {
+  --tone: var(--color-s-moss);
+  --tone-glow: transparent;
+}
+
+.s-signal[data-state="done"] .s-signal__meter > i {
+  height: 100%;
+}
+
+/* error: full scale, with the middle reading broken. The break is what says
+   "fault" — colour alone would only say "attention". */
+.s-signal[data-state="error"] {
+  --tone: var(--color-s-rust);
+  --tone-glow: transparent;
+}
+
+.s-signal[data-state="error"] .s-signal__meter > i {
+  height: 100%;
+}
+
+.s-signal[data-state="error"] .s-signal__meter > i:nth-child(2) {
+  height: 34%;
+}
+
+@keyframes signal-step {
+  0%,
+  100% {
+    height: 26%;
+  }
+  45% {
+    height: 100%;
+  }
+}
+
+/* Collapsible sections. The native disclosure triangle is the last piece of
+   un-designed chrome in the app, so it is replaced by a right-angle chevron
+   drawn from two borders — same shape family as the Icon set. */
+details > summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+details > summary::-webkit-details-marker {
+  display: none;
+}
+
+details > summary::marker {
+  content: "";
+}
+
+details > summary::before {
+  content: "";
+  flex-shrink: 0;
+  width: 5px;
+  height: 5px;
+  margin-left: 1px;
+  border-right: 1.5px solid var(--color-s-faint);
+  border-bottom: 1.5px solid var(--color-s-faint);
+  transform: rotate(-45deg);
+  transition: transform var(--dur-fast) var(--ease-std);
+}
+
+details[open] > summary::before {
+  transform: rotate(45deg);
+}
+
+/* ===========================================================================
+ * Motion
+ * =========================================================================*/
+
+@keyframes s-throb {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.38;
+  }
+}
+
+.s-pulse {
+  animation: s-throb 1.5s ease-in-out infinite;
+}
+
+@keyframes s-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.995);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.s-enter {
+  animation: s-rise var(--dur-slow) var(--ease-out) both;
+}
+
+@keyframes s-travel {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* Working indicator: a bar of light travelling along a seam. Cheaper than a
+   spinner and impossible to miss in peripheral vision. */
+.s-scan {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.s-scan::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in oklab, var(--color-s-ember) 26%, transparent),
+    transparent
+  );
+  animation: s-travel 1.6s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .s-pulse,
+  .s-signal__meter > i,
+  .s-scan::after,
+  .s-enter {
+    animation: none !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * markdown / transcript typography
+ * -------------------------------------------------------------------------*/
+.md p {
+  margin: 0 0 0.5rem;
+}
+
+.md p:last-child {
+  margin-bottom: 0;
+}
+
+.md ul,
+.md ol {
+  margin: 0 0 0.5rem;
+  padding-left: 1.35rem;
+}
+
+.md ul {
+  list-style: none;
+}
+
+.md ul > li::before {
+  content: "\2022";
+  color: var(--color-s-faint);
+  margin-left: -1.05rem;
+  margin-right: 0.45rem;
+}
+
+.md ol > li::marker {
+  color: var(--color-s-faint);
+}
+
+.md li {
+  margin: 0.1rem 0;
+}
+
+.md code {
+  background: var(--color-s-well);
+  border: 1px solid var(--color-s-line);
+  border-radius: var(--radius-xs);
+  padding: 0 0.3em;
+  color: var(--color-s-bright);
+}
+
+.md pre {
+  background: var(--color-s-well);
+  border: 1px solid var(--color-s-line);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--in-1);
+  padding: 0.6rem 0.75rem;
+  overflow-x: auto;
+  margin: 0 0 0.5rem;
+}
+
+.md pre code {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  color: var(--color-s-body);
+}
+
+.md a {
+  color: var(--color-s-ember);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.md h1,
+.md h2,
+.md h3,
+.md h4 {
+  font-weight: 650;
+  color: var(--color-s-bright);
+  margin: 0.9rem 0 0.4rem;
+  letter-spacing: -0.01em;
+}
+
+.md h1 {
+  font-size: 1.15em;
+}
+
+.md h2 {
+  font-size: 1.08em;
+}
+
+.md h3,
+.md h4 {
+  font-size: 1em;
+}
+
+.md blockquote {
+  border-left: 3px solid var(--color-s-ember);
+  border-radius: var(--radius-xs);
+  padding-left: 0.7rem;
+  color: var(--color-s-soft);
+  margin: 0 0 0.5rem;
+}
+
+.md table {
+  border-collapse: collapse;
+  margin-bottom: 0.5rem;
+}
+
+.md th,
+.md td {
+  border: 1px solid var(--color-s-line);
+  padding: 0.2rem 0.5rem;
+  text-align: left;
+}
+
+.md th {
+  color: var(--color-s-bright);
+  background: var(--color-s-card);
+}
+
+.md hr {
+  border: 0;
+  border-top: 1px solid var(--color-s-line);
+  margin: 0.7rem 0;
+}
+
+} /* end @layer components */

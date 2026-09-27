@@ -1,0 +1,11 @@
+packages:
+  - server
+  - web
+
+# esbuild and @tailwindcss/oxide have postinstall steps. pnpm 12 blocks build scripts by
+# default and FAILS the install when one is skipped, so a fresh clone could not install at
+# all until these were allowed. (The file previously held pnpm's own placeholder text,
+# "set this to true or false", which is not a truthy value.)
+allowBuilds:
+  esbuild: true
+  "@tailwindcss/oxide": true

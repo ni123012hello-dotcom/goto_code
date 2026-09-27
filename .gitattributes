@@ -1,0 +1,4 @@
+# The batch files must keep CRLF. With LF line endings cmd.exe mis-parses the labels
+# and output is lost - see the "开发时容易踩的" table in README.md.
+*.cmd text eol=crlf
+*.bat text eol=crlf

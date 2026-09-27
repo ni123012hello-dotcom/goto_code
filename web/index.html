@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="linen">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>goto</title>
+    <script>
+      /* Runs before the bundle so a dark-mode user never sees a flash of cream.
+         Must agree with src/theme.ts (key + attribute + default). */
+      try {
+        if (localStorage.getItem("goto.theme") === "dark") {
+          document.documentElement.dataset.theme = "dark"
+        }
+      } catch (error) {
+        /* storage disabled: the default palette is already on <html> */
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

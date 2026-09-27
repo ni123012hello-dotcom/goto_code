@@ -1,0 +1,43 @@
+{
+  "name": "server",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "check:memory": "tsx scripts/mem-check.ts",
+    "check:sessions": "tsx scripts/session-check.ts",
+    "check:mode": "tsx scripts/mode-check.ts",
+    "check:context": "tsx scripts/context-check.ts",
+    "check:files": "tsx scripts/files-check.ts",
+    "check:tree": "tsx scripts/tree-check.ts",
+    "check:folders": "tsx scripts/folders-check.ts",
+    "check:shell": "tsx scripts/shell-check.ts",
+    "check:injection": "tsx scripts/injection-check.ts",
+    "check:access": "tsx scripts/access-check.ts",
+    "check:skills": "tsx scripts/skills-check.ts",
+    "check:mcp": "tsx scripts/mcp-check.ts",
+    "check:mcp-client": "tsx scripts/mcp-client-check.ts",
+    "check:mcp-import": "tsx scripts/mcp-import-check.ts",
+    "check:questions": "tsx scripts/questions-check.ts",
+    "check:notes": "tsx scripts/notes-check.ts",
+    "check:models": "tsx scripts/models-check.ts",
+    "models:sync": "node scripts/models-sync.mjs",
+    "check": "npm run typecheck && npm run check:injection && npm run check:access && npm run check:skills && npm run check:mcp && npm run check:mcp-client && npm run check:mcp-import && npm run check:context && npm run check:models && npm run check:files && npm run check:tree && npm run check:folders && npm run check:shell && npm run check:notes && npm run check:questions && npm run check:memory && npm run check:sessions && npm run check:mode"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.14.0",
+    "diff": "^7.0.0",
+    "fast-glob": "^3.3.3",
+    "hono": "^4.7.5",
+    "openai": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/diff": "^7.0.0",
+    "@types/node": "^22.13.10",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
+  }
+}

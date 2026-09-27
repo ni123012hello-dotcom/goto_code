@@ -1,0 +1,42 @@
+# 这个项目唯一的验证门是 `pnpm -C server check`（见 AGENTS.md §1），所以这里就跑那一条，
+# 外加一个 web 的 typecheck（`pnpm check` 只覆盖服务端）。
+#
+# 为什么是 windows-latest 而不是 ubuntu：`shell-check` 等套件断言的是**工具实际依赖的
+# PowerShell 行为** —— `$env:` 展开、`2>$null`、不带 `-p` 的 `mkdir`、以及 `&&` 能不能串。
+# 在 Linux 上 shell 工具落到别的 shell，那些断言就不再描述这个产品了，跑它没有意义。
+name: check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          # 与 package.json 的 packageManager 保持一致；要升就一起升
+          version: 12.6.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      # 不要中途打断 install，嵌套依赖会被写坏（见 README「开发时容易踩的」）
+      - name: install
+        run: pnpm install --frozen-lockfile
+
+      - name: typecheck (server + web)
+        run: pnpm typecheck
+
+      # 判据是 FAIL=0，不是 PASS 条数：中文输出经控制台编码可能吞换行，计数会偏低；
+      # 而且这条链是 && 串的，中途挂了后面的套件根本不会跑
+      - name: server check
+        run: pnpm -C server check

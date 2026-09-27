@@ -1,0 +1,22 @@
+{
+  "name": "goto",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "packageManager": "pnpm@12.6.0",
+  "workspaces": [
+    "server",
+    "web"
+  ],
+  "scripts": {
+    "dev": "concurrently -n server,web -c cyan,magenta \"pnpm dev:server\" \"pnpm dev:web\"",
+    "dev:server": "pnpm -C server run dev",
+    "dev:web": "pnpm -C web run dev",
+    "typecheck": "pnpm -C server run typecheck && pnpm -C web run typecheck",
+    "build": "pnpm -C web run build",
+    "check": "pnpm -C server check"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
